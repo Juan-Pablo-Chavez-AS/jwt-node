@@ -21,4 +21,8 @@ export default class ClientController {
       res.status(500).json({ message: err.message, stack: err.stack })
     }
   }
+
+  public async getInfoClient(req: Request, res: Response) {
+    // const body = req.
+  }
 }
