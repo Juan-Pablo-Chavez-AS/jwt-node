@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "start": "npx prisma generate && node ./dist/index.js",
+    "dbpush": "npx prisma db push",
+    "clientup": "npx prisma generate"
   },
   "author": "",
   "license": "ISC",
