@@ -16,3 +16,8 @@ export interface RouterPath {
   router: Router,
   path: string,
 }
+
+export interface LoginCredentials {
+  username: string,
+  password: string
+}

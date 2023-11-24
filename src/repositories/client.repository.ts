@@ -1,5 +1,5 @@
 import dbClient from '../config/db.config'
-import { clientInput } from '../types/types';
+import { clientInput, LoginCredentials } from '../types/types';
 import JWTManager from '../auth/jwt/jwt.auth';
 import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
 
@@ -39,7 +39,19 @@ export default class ClientRepository {
         return clientInfo
     }
 
-    public async changeClientPassword() {
+    public async login(credentials: LoginCredentials) {
+        const client = await dbClient.client.findUnique({ where: {
+            username: credentials.username,
+            password: credentials.password
+        },
+        select: ClientRepository.clientInfoSelect
+        })
 
+        if (client === null) throw "Invalid credentials"
+
+        const token = JWTManager.generateToken(client)
+
+        return { token }
     }
+
 }
