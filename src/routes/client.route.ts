@@ -10,7 +10,7 @@ export default class ClientRouter implements ModelRouter{
 
   public constructor(controller: ClientController) {
     this.controller = controller
-    // this.router.get('/:id?', this.controller.getAllClients)
+    this.router.get('/', this.controller.getInfoClient)
     this.router.post('/', this.controller.createClient)
     // this.router.put('/:id', this.controller.updateClient)
     // this.router.delete('/:id', this.controller.deleteClient)

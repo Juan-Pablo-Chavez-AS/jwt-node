@@ -1,7 +1,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken'
 
 export default class JWTManager {
-  private static readonly tokenOptions: SignOptions = { algorithm: 'HS512', expiresIn: 30 }
+  private static readonly tokenOptions: SignOptions = { algorithm: 'HS512', expiresIn: '1h' }
   private static readonly salt: string = 'salt'
 
   public static generateToken(content: Object): string {
@@ -11,7 +11,7 @@ export default class JWTManager {
   }
 
   public static validateToken(token: string) {
-    const payload = jwt.verify(token, this.salt)
+    const payload = jwt.verify(token, this.salt) as string
 
     return payload
   }

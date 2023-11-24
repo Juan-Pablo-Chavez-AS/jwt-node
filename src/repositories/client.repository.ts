@@ -1,12 +1,13 @@
 import dbClient from '../config/db.config'
 import { clientInput } from '../types/types';
 import JWTManager from '../auth/jwt/jwt.auth';
-import { JsonWebTokenError } from 'jsonwebtoken';
+import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
 
 export default class ClientRepository {
     private static readonly clientInfoSelect = {
         id: true,
-        username: true
+        username: true,
+        token: true
     }
 
     constructor() {
@@ -14,19 +15,28 @@ export default class ClientRepository {
     }
 
     public async createClient(clientData: clientInput) {
-        const token = JWTManager.generateToken(clientData)
-        clientData = { ...clientData, password_hash: "whatever", token: token }
+        clientData = { ...clientData, password_hash: "whatever"} // WIP: hashing
 
-        return await dbClient.client.create({
+        const newClient =  await dbClient.client.create({
             data: clientData,
             select: ClientRepository.clientInfoSelect
         });
+
+        const token = JWTManager.generateToken(newClient)
+
+        const clientWithToken = await dbClient.client.update({ where: {id: newClient.id}, data: {token: token}, select: ClientRepository.clientInfoSelect})
+
+        return clientWithToken
     }
 
-    public async getInfoClient(newUsername: string, token: string ) {
-        const payload = JWTManager.validateToken(token)
+    public async getInfoClient(clientId: number, token: string ) {
+        const payload = JWTManager.validateToken(token) as any
 
-        return payload
+        if (clientId !== payload.id) throw new JsonWebTokenError("Missmatching ids")
+
+
+        const clientInfo = dbClient.client.findUnique({ where: { id: payload.id }, select: ClientRepository.clientInfoSelect })
+        return clientInfo
     }
 
     public async changeClientPassword() {
