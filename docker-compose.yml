@@ -1,21 +1,22 @@
 version: '3'
 
 services:
-  postgres:
+  database: # WIP: Fix to continue using localhost in dev environment
     image: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
 
-  prisma-postgres-api:
+  prisma-postgres:
     stdin_open: true
     build:
       context: .
       dockerfile: Dockerfile
     container_name: prisma-postgres-api
     depends_on:
-      - postgres
+      - database
     ports:
       - "3000:3000"
