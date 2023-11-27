@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { AuthMiddleware } from "../types/types";
 import JWTManager from "../auth/jwt/jwt.auth";
 import { JsonWebTokenError } from "jsonwebtoken";
+import ErrorResponse from "../responses/error.response";
 
 export default class JWTMiddleware implements AuthMiddleware {
 
@@ -20,12 +21,10 @@ export default class JWTMiddleware implements AuthMiddleware {
       next()
     } catch (err: any) {
       if (err instanceof JsonWebTokenError) {
-        return res.status(401).json({ message: err.message, stack: err.stack })
+        return res.status(401).json(ErrorResponse.simpleErrorResponse(err))
       } else {
-        return res.status(500).json({ message: err.message, stack: err.stack })
+        return res.status(500).json(ErrorResponse.simpleErrorResponse(err))
       }
     }
-
   }
-
 }

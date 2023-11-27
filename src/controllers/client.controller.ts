@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import ClientRepository from "../repositories/client.repository";
 import { LoginCredentials, clientInput } from "../types/types";
 import { JsonWebTokenError } from "jsonwebtoken";
+import ErrorResponse from "../responses/error.response";
 
 export default class ClientController {
   private readonly repository: ClientRepository
@@ -21,7 +22,7 @@ export default class ClientController {
 
       return res.cookie('jwt', response.token).status(201).json(response)
     } catch (err: any) {
-      res.status(500).json({ message: err.message, stack: err.stack })
+      res.status(500).json(ErrorResponse.simpleErrorResponse(err))
     }
   }
 
@@ -34,9 +35,9 @@ export default class ClientController {
       return res.status(200).json(response)
     } catch (err: any) {
       if (err instanceof JsonWebTokenError) {
-        return res.status(401).json({ message: err.message, stack: err.stack })
+        return res.status(401).json(ErrorResponse.simpleErrorResponse(err))
       } else {
-        return res.status(500).json({ message: err.message, stack: err.stack })
+        return res.status(500).json(ErrorResponse.simpleErrorResponse(err))
       }
     }
   }
@@ -48,7 +49,7 @@ export default class ClientController {
 
       return res.status(200).cookie('jwt', response.token).json(response)
     } catch (err: any) {
-      return res.status(500).json({ message: err.message, stack: err.stack })
+      return res.status(500).json(ErrorResponse.simpleErrorResponse(err))
     }
   }
 }
