@@ -1,7 +1,7 @@
 import dbClient from '../config/db.config'
 import { clientInput, LoginCredentials } from '../types/types';
 import JWTManager from '../auth/jwt/jwt.auth';
-import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 export default class ClientRepository {
     private static readonly clientInfoSelect = {
@@ -29,13 +29,11 @@ export default class ClientRepository {
         return clientWithToken
     }
 
-    public async getInfoClient(clientId: number, token: string ) {
-        const payload = JWTManager.validateToken(token) as any
-
-        if (clientId !== payload.id) throw new JsonWebTokenError("Missmatching ids")
+    public async getInfoClient(clientId: number, identity: any ) {
+        if (clientId !== identity.id) throw new JsonWebTokenError("Missmatching ids")
 
 
-        const clientInfo = dbClient.client.findUnique({ where: { id: payload.id }, select: ClientRepository.clientInfoSelect })
+        const clientInfo = dbClient.client.findUnique({ where: { id: identity.id }, select: ClientRepository.clientInfoSelect })
         return clientInfo
     }
 

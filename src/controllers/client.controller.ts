@@ -28,10 +28,9 @@ export default class ClientController {
   public async getInfoClient(req: Request, res: Response) {
     try {
       const clientId = Number.parseInt(req.query.id as string)
+      const identity = req.body.identity
 
-      const jwtToken = req.cookies?.jwt
-
-      const response = await this.repository.getInfoClient(clientId, jwtToken)
+      const response = await this.repository.getInfoClient(clientId, identity)
       return res.status(200).json(response)
     } catch (err: any) {
       if (err instanceof JsonWebTokenError) {
