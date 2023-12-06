@@ -19,7 +19,7 @@ export default class ClientController {
   public async createClient(req: Request, res: Response) {
     try {
       const clientData = req.body as clientInput;
-      const clientDataWithHash = { ...clientData, password_hash: 'whatever' }; // WIP: hashing
+      const clientDataWithHash = { ...clientData, password_hash: 'whatever' };
 
       const newClient = await this.repository.createClient(clientDataWithHash);
 
