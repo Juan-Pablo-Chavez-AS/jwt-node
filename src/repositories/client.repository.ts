@@ -1,6 +1,5 @@
 import dbClient from '../config/db.config';
 import { clientInput, LoginCredentials, UserIdentity } from '../types/types';
-import JWTManager from '../auth/jwt/jwt.auth';
 import { JsonWebTokenError } from 'jsonwebtoken';
 
 export default class ClientRepository {
@@ -13,17 +12,16 @@ export default class ClientRepository {
   constructor() {}
 
   public async createClient(clientData: clientInput) {
-    clientData = { ...clientData, password_hash: 'whatever' }; // WIP: hashing
-
     const newClient = await dbClient.client.create({
       data: clientData,
       select: ClientRepository.clientBasicInfoSelect
     });
 
-    const token = JWTManager.generateToken(newClient);
+    return newClient;
+  }
 
-    const clientWithToken = await dbClient.client.update({ where: { id: newClient.id }, data: { token: token }, select: ClientRepository.clientBasicInfoSelect });
-
+  public async assingTokenToClient(clientId: number, token: string) {
+    const clientWithToken = await dbClient.client.update({ where: { id: clientId }, data: { token: token }, select: ClientRepository.clientBasicInfoSelect });
     return clientWithToken;
   }
 

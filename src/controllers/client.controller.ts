@@ -19,9 +19,14 @@ export default class ClientController {
   public async createClient(req: Request, res: Response) {
     try {
       const clientData = req.body as clientInput;
-      const response = await this.repository.createClient(clientData);
+      const clientDataWithHash = { ...clientData, password_hash: 'whatever' }; // WIP: hashing
 
-      return res.cookie('jwt', response.token).status(201).json(response);
+      const newClient = await this.repository.createClient(clientDataWithHash);
+
+      const clientToken = JWTManager.generateToken(newClient);
+      const clientWithToken = await this.repository.assingTokenToClient(newClient.id, clientToken);
+
+      return res.cookie('jwt', clientWithToken.token).status(201).json(clientWithToken);
     } catch (err: unknown) {
       if (err instanceof Error) {
         res.status(500).json(ErrorResponse.simpleErrorResponse(err));
