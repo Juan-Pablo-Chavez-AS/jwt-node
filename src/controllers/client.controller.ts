@@ -3,6 +3,7 @@ import ClientRepository from '../repositories/client.repository';
 import { LoginCredentials, UserIdentity, clientInput } from '../types/types';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import ErrorResponse from '../responses/error.response';
+import JWTManager from '../auth/jwt/jwt.auth';
 
 export default class ClientController {
   private readonly repository: ClientRepository;
@@ -47,9 +48,16 @@ export default class ClientController {
   public async loginClient(req: Request, res: Response) {
     try {
       const credentials = req.body as LoginCredentials;
-      const response = await this.repository.login(credentials);
+      const client = await this.repository.login(credentials);
 
-      return res.status(200).cookie('jwt', response.token).json(response);
+      if (client === null) {
+        return res.status(400).json({
+          message: 'Invalid credentials'
+        });
+      }
+
+      const token = JWTManager.generateToken(client);
+      return res.status(200).cookie('jwt', token).json(client);
     } catch (err: unknown) {
       if (err instanceof Error) {
         return res.status(500).json(ErrorResponse.simpleErrorResponse(err));
