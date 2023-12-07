@@ -8,6 +8,10 @@ export default class ClientRepository {
     username: true,
     token: true
   };
+  private static readonly clientTokenDataSelect = {
+    id: true,
+    username: true
+  };
 
   constructor() {}
 
@@ -21,8 +25,7 @@ export default class ClientRepository {
   }
 
   public async assingTokenToClient(clientId: number, token: string) {
-    const clientWithToken = await dbClient.client.update({ where: { id: clientId }, data: { token: token }, select: ClientRepository.clientBasicInfoSelect });
-    return clientWithToken;
+    return dbClient.client.update({ where: { id: clientId }, data: { token: token }, select: ClientRepository.clientBasicInfoSelect });
   }
 
   public async getInfoClient(clientId: number, identity: UserIdentity) {
@@ -41,7 +44,7 @@ export default class ClientRepository {
         username: credentials.username,
         password: credentials.password
       },
-      select: ClientRepository.clientBasicInfoSelect
+      select: ClientRepository.clientTokenDataSelect
     });
 
     return client;

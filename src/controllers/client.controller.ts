@@ -23,10 +23,7 @@ export default class ClientController {
 
       const newClient = await this.repository.createClient(clientDataWithHash);
 
-      const clientToken = JWTManager.generateToken(newClient);
-      const clientWithToken = await this.repository.assingTokenToClient(newClient.id, clientToken);
-
-      return res.cookie('jwt', clientWithToken.token).status(201).json(clientWithToken);
+      return res.status(201).json(newClient);
     } catch (err: unknown) {
       if (err instanceof Error) {
         res.status(500).json(ErrorResponse.simpleErrorResponse(err));
@@ -62,7 +59,9 @@ export default class ClientController {
       }
 
       const token = JWTManager.generateToken(client);
-      return res.status(200).cookie('jwt', token).json(client);
+      const loggedClient = await this.repository.assingTokenToClient(client.id, token);
+
+      return res.status(200).cookie('jwt', token).json(loggedClient);
     } catch (err: unknown) {
       if (err instanceof Error) {
         return res.status(500).json(ErrorResponse.simpleErrorResponse(err));
