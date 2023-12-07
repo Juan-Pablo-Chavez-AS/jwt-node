@@ -3,6 +3,7 @@ import ClientRepository from '../repositories/client.repository';
 import { LoginCredentials, UserIdentity, clientInput } from '../types/types';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import ErrorResponse from '../responses/error.response';
+import JWTManager from '../auth/jwt/jwt.auth';
 
 export default class ClientController {
   private readonly repository: ClientRepository;
@@ -18,9 +19,11 @@ export default class ClientController {
   public async createClient(req: Request, res: Response) {
     try {
       const clientData = req.body as clientInput;
-      const response = await this.repository.createClient(clientData);
+      const clientDataWithHash = { ...clientData, password_hash: 'whatever' };
 
-      return res.cookie('jwt', response.token).status(201).json(response);
+      const newClient = await this.repository.createClient(clientDataWithHash);
+
+      return res.status(201).json(newClient);
     } catch (err: unknown) {
       if (err instanceof Error) {
         res.status(500).json(ErrorResponse.simpleErrorResponse(err));
@@ -47,9 +50,18 @@ export default class ClientController {
   public async loginClient(req: Request, res: Response) {
     try {
       const credentials = req.body as LoginCredentials;
-      const response = await this.repository.login(credentials);
+      const client = await this.repository.login(credentials);
 
-      return res.status(200).cookie('jwt', response.token).json(response);
+      if (client === null) {
+        return res.status(400).json({
+          message: 'Invalid credentials'
+        });
+      }
+
+      const token = JWTManager.generateToken(client);
+      const loggedClient = await this.repository.assingTokenToClient(client.id, token);
+
+      return res.status(200).cookie('jwt', token).json(loggedClient);
     } catch (err: unknown) {
       if (err instanceof Error) {
         return res.status(500).json(ErrorResponse.simpleErrorResponse(err));

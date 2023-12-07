@@ -15,4 +15,4 @@ const server = new Server(routers);
 
 server.getApp().listen(3000, () => {
   console.log('pgsql server is listening on port 3000');
-})
+});

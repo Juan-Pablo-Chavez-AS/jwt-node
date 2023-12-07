@@ -1,32 +1,31 @@
 import dbClient from '../config/db.config';
 import { clientInput, LoginCredentials, UserIdentity } from '../types/types';
-import JWTManager from '../auth/jwt/jwt.auth';
 import { JsonWebTokenError } from 'jsonwebtoken';
 
 export default class ClientRepository {
-  private static readonly clientInfoSelect = {
+  private static readonly clientBasicInfoSelect = {
     id: true,
     username: true,
     token: true
   };
+  private static readonly clientTokenDataSelect = {
+    id: true,
+    username: true
+  };
 
-  constructor() {
-
-  }
+  constructor() {}
 
   public async createClient(clientData: clientInput) {
-    clientData = { ...clientData, password_hash: 'whatever' }; // WIP: hashing
-
     const newClient = await dbClient.client.create({
       data: clientData,
-      select: ClientRepository.clientInfoSelect
+      select: ClientRepository.clientBasicInfoSelect
     });
 
-    const token = JWTManager.generateToken(newClient);
+    return newClient;
+  }
 
-    const clientWithToken = await dbClient.client.update({ where: { id: newClient.id }, data: { token: token }, select: ClientRepository.clientInfoSelect });
-
-    return clientWithToken;
+  public async assingTokenToClient(clientId: number, token: string) {
+    return dbClient.client.update({ where: { id: clientId }, data: { token: token }, select: ClientRepository.clientBasicInfoSelect });
   }
 
   public async getInfoClient(clientId: number, identity: UserIdentity) {
@@ -35,7 +34,7 @@ export default class ClientRepository {
     }
 
 
-    const clientInfo = dbClient.client.findUnique({ where: { id: identity.id }, select: ClientRepository.clientInfoSelect });
+    const clientInfo = dbClient.client.findUnique({ where: { id: identity.id }, select: ClientRepository.clientBasicInfoSelect });
     return clientInfo;
   }
 
@@ -45,16 +44,10 @@ export default class ClientRepository {
         username: credentials.username,
         password: credentials.password
       },
-      select: ClientRepository.clientInfoSelect
+      select: ClientRepository.clientTokenDataSelect
     });
 
-    if (client === null) {
-      throw 'Invalid credentials';
-    }
-
-    const token = JWTManager.generateToken(client);
-
-    return { token };
+    return client;
   }
 
 }
