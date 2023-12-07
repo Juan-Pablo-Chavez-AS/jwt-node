@@ -3,7 +3,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 export interface clientInput {
   username: string,
   password: string,
-  password_hash?: string,
+  password_hash: string,
   token?: string,
 }
 

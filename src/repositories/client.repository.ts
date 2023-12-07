@@ -1,5 +1,5 @@
 import dbClient from '../config/db.config';
-import { clientInput, LoginCredentials, UserIdentity } from '../types/types';
+import { clientInput, UserIdentity } from '../types/types';
 import { JsonWebTokenError } from 'jsonwebtoken';
 
 export default class ClientRepository {
@@ -8,9 +8,10 @@ export default class ClientRepository {
     username: true,
     token: true
   };
-  private static readonly clientTokenDataSelect = {
+  private static readonly clientPasswordHashSelect = {
     id: true,
-    username: true
+    username: true,
+    password_hash: true
   };
 
   constructor() {}
@@ -38,13 +39,12 @@ export default class ClientRepository {
     return clientInfo;
   }
 
-  public async login(credentials: LoginCredentials) {
+  public async getUserByUsername(username: string) {
     const client = await dbClient.client.findUnique({
       where: {
-        username: credentials.username,
-        password: credentials.password
+        username: username,
       },
-      select: ClientRepository.clientTokenDataSelect
+      select: ClientRepository.clientPasswordHashSelect
     });
 
     return client;
