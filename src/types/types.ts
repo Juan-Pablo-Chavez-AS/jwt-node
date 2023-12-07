@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from 'express';
 
 export interface clientInput {
   username: string,
@@ -24,4 +24,8 @@ export interface LoginCredentials {
 
 export interface AuthMiddleware {
   validateToken: (req: Request, res: Response, next: NextFunction) => void
+}
+
+export interface UserIdentity {
+  id: number
 }
