@@ -11,6 +11,6 @@ model client {
   id            Int     @id(map: "client_pk") @unique(map: "client_pk_un") @default(autoincrement())
   username      String  @unique(map: "client_un") @db.VarChar
   password      String  @db.VarChar
-  password_hash String? @db.VarChar
+  password_hash String @db.VarChar
   token         String? @db.VarChar
 }
